@@ -1,25 +1,27 @@
 import streamlit as st
-
-from sklearn import datasets
-
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.decomposition import PCA
-import pickle
 import numpy as np
+import pandas as pd
+
 import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+
+from sklearn.decomposition import PCA
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+from sklearn.metrics import accuracy_score
 
 
 # streamlit run mlbearings-app.py
 
-st.title('Streamlit example')
+st.title('Lighthouse Labs Final Project Bearing Fault Classification')
 
 st.write("""
-# Explore different classifier
-Which one is the best?
+This app is for Bearing Classification using CNN, ANN, KNN, SVM, RandomForestClassifier
+
+Data obtained from the [CWRU Bearing Data Set](https://engineering.case.edu/bearingdatacenter/download-data-file)
 """)
 
 st.sidebar.header('User Input Features')
@@ -27,9 +29,31 @@ st.sidebar.markdown("""
 [Example CSV input file](https://engineering.case.edu/bearingdatacenter/download-data-file)
 """)
 
-dataset_name = st.sidebar.selectbox('Select Dataset', ('Iris', 'Breast Cancer', 'Wine dataset', '0hp', '1hp', '2hp', '3hp'))
+dataset_name = st.sidebar.selectbox('Select Dataset', ('Iris', 'Breast Cancer', 'Wine dataset', '0hp - 48 KHz', '1hp - 48 KHz', '2hp - 48 KHz', '3hp - 48 KHz'))
 
-classifier_name = st.sidebar.selectbox('Select Classifier', ('KNN', 'SVM', 'Random Forest'))
+classifier_name = st.sidebar.selectbox('Select Classifier', ('CNN', 'ANN','KNN', 'SVM', 'Random Forest'))
+
+# Collects user input features into dataframe
+uploaded_file = st.sidebar.file_uploader("Upload your input CSV file", type=["csv"])
+if uploaded_file is not None:
+    input_df = pd.read_csv(uploaded_file)
+else:
+    def user_input_features():
+        island = st.sidebar.selectbox('Bearings Brand',('SKF','Dream','Torgersen'))
+        sex = st.sidebar.selectbox('Type',('Ball','Linear'))
+        bill_length_mm = st.sidebar.slider('Bearing length (mm)', 32.1,59.6,43.9)
+        bill_depth_mm = st.sidebar.slider('Bearing depth (mm)', 13.1,21.5,17.2)
+        flipper_length_mm = st.sidebar.slider('Housing length (mm)', 172.0,231.0,201.0)
+        body_mass_g = st.sidebar.slider('Bearing mass (g)', 2700.0,6300.0,4207.0)
+        data = {'island': island,
+                'bill_length_mm': bill_length_mm,
+                'bill_depth_mm': bill_depth_mm,
+                'flipper_length_mm': flipper_length_mm,
+                'body_mass_g': body_mass_g,
+                'sex': sex}
+        features = pd.DataFrame(data, index=[0])
+        return features
+    input_df = user_input_features()
 
 
 def get_dataset(dataset_name):
