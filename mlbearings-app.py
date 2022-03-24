@@ -1,5 +1,5 @@
 import streamlit as st
-from docutils.nodes import classifier
+
 from sklearn import datasets
 
 from sklearn.neighbors import KNeighborsClassifier
